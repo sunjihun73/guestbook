@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:data/guestbook.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+guestbook:
+  banned-words:
+    - 욕설
+    - badword
