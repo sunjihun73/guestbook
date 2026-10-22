@@ -1,5 +1,6 @@
 package com.example.guestbook.banned;
 
+import com.example.guestbook.text.UnicodeSpace;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,6 @@ public class BannedWordFilter {
     }
 
     private static String normalize(String text) {
-        return text.toLowerCase(Locale.ROOT).replaceAll("\s+", "");
+        return UnicodeSpace.removeAll(text.toLowerCase(Locale.ROOT));
     }
 }
