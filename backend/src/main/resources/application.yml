@@ -9,6 +9,5 @@ spring:
     open-in-view: false
 
 guestbook:
-  banned-words:
-    - 욕설
-    - badword
+  # 쉼표로 구분한 금칙어 목록 (대소문자·공백 무시)
+  banned-words: 욕설,badword
