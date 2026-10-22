@@ -12,7 +12,7 @@ export type EntryPage = {
   totalElements: number;
 };
 
-export type ApiErrorCode = "BANNED_WORD" | "VALIDATION" | "NETWORK";
+export type ApiErrorCode = "BANNED_WORD" | "VALIDATION" | "SERVER" | "NETWORK";
 
 export class ApiError extends Error {
   readonly code: ApiErrorCode;
@@ -37,7 +37,8 @@ async function request(url: string, init: RequestInit): Promise<Response> {
 async function toApiError(response: Response): Promise<ApiError> {
   try {
     const body = (await response.json()) as { code?: string; message?: string };
-    const code = body.code === "BANNED_WORD" ? "BANNED_WORD" : "VALIDATION";
+    const code: ApiErrorCode =
+      body.code === "BANNED_WORD" || body.code === "SERVER" ? body.code : "VALIDATION";
     return new ApiError(code, body.message ?? "요청을 처리하지 못했습니다.");
   } catch {
     return new ApiError("NETWORK", NETWORK_MESSAGE);

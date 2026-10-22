@@ -86,4 +86,31 @@ describe("createEntry", () => {
     expect(error).toBeInstanceOf(ApiError);
     expect(error.code).toBe("NETWORK");
   });
+
+  it("throws ApiError with code SERVER and keeps the message on a 500 JSON error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => jsonResponse(500, { code: "SERVER", message: "일시적인 오류가 발생했습니다." })),
+    );
+
+    const error = await createEntry({ name: "민수", message: "안녕" }).catch((e) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error.code).toBe("SERVER");
+    expect(error.message).toBe("일시적인 오류가 발생했습니다.");
+  });
+});
+
+describe("fetchEntries errors", () => {
+  it("throws ApiError with code SERVER when the list request fails with 500", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => jsonResponse(500, { code: "SERVER", message: "일시적인 오류가 발생했습니다." })),
+    );
+
+    const error = await fetchEntries({ page: 0 }).catch((e) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error.code).toBe("SERVER");
+  });
 });
