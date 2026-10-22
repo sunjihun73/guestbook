@@ -47,7 +47,8 @@
 
 ### 4.4 금칙어
 - 금칙어 목록은 서버에서 보관하고, 서버가 등록 요청을 검증할 때 적용한다.
-- 이번 범위에서는 금칙어를 관리하는 화면이 없다. 초기 목록은 설정 파일이나 DB 초기 데이터로 넣는다. (제안값)
+- 이번 범위에서는 금칙어를 관리하는 화면이 없다. 목록은 환경변수 `BANNED_WORDS`(쉼표 구분)로 넣고, 없으면 자리표시자(`욕설,badword`)를 쓴다. (제안값)
+- 대소문자, 모든 유니코드 공백(전각 공백·NBSP 포함), 제로폭 문자를 무시하고 검사한다.
 
 ## 5. 디자인 방향
 
@@ -60,10 +61,14 @@
 
 | 영역 | 선택 | 비고 |
 |------|------|------|
-| 백엔드 | Spring Boot | 사용자 지정 |
-| 프론트엔드 | Next.js | 사용자 지정 |
-| DB | SQLite | 사용자 지정 |
+| 프론트엔드 + 서버 로직 | Next.js (App Router, Route Handler) | 사용자 지정 |
+| DB | Supabase (PostgreSQL) | 사용자 지정 (2026-10-22 변경: SQLite → Supabase) |
+| 배포 | Vercel (프론트엔드 + API) + Supabase | 사용자 지정 |
 | UI | shadcn/ui + Tailwind CSS | 제안값 |
+
+**변경 이력 (2026-10-22)**: Vercel은 Spring Boot(JVM)를 실행할 수 없고 서버리스 디스크는 휘발성이라 SQLite 파일을 쓸 수 없다. 그래서 Spring Boot 백엔드를 없애고, 같은 검증 규칙을 Next.js Route Handler(`/api/entries`)로 옮겨 Supabase Postgres를 서버에서만 호출한다. 응답 JSON 계약(`entries/page/totalPages/totalElements`, 오류 코드 `BANNED_WORD`/`VALIDATION`)은 그대로다. 기존 `backend/`(Spring Boot)는 로컬 참고용으로 저장소에 남기되 배포에는 쓰지 않는다.
+
+**보안 결정 (제안값)**: Supabase 키는 서버 환경변수로만 두고(`NEXT_PUBLIC_` 금지), 테이블에는 RLS를 켜고 정책을 만들지 않는다. 브라우저가 Supabase를 직접 호출해 금칙어 검사를 우회하는 길을 막기 위해서다.
 
 ## 7. 데이터
 
@@ -87,7 +92,7 @@
 - 부적절한 글은 사후 삭제, 욕설은 금칙어로 제어
 - 관리자 기능은 나중에, 이번에는 방명록 화면만
 - shadcn 사이트 분위기, 연한 파랑 + 그레이
-- Spring Boot + Next.js + SQLite
+- Next.js + Supabase(Postgres), Vercel 배포 (초기 Spring Boot + SQLite에서 변경)
 - 페이지당 20개, 메시지 300자, 도배 방지 없음
 
 **제안값 (확정 필요)**
